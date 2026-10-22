@@ -2651,6 +2651,8 @@ class BBCodeParser extends Parser
 
 				// So, we're inside one of the special blocks: ignore any tag.
 				if ($in_code || $in_tt || $in_nobbc) {
+					$parts[$i + 1] = '&#91;';
+					$parts[$i + 4] = strtr($parts[$i + 4], [']' => '&#93;']);
 					continue;
 				}
 
