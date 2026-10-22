@@ -1061,11 +1061,11 @@ class BBCodeParser extends Parser
 			'~</sup>~i' => function () {
 				return '[/sup]';
 			},
-			'~<tt(\s(.)*?)*?' . '>~i' => function () {
-				return '[tt]';
+			'~<tt\b[^>]*>((?>[^<]|<(?!/?tt\b)|(?R))*)</tt>~i' => function ($matches) {
+				return '[tt]' . strtr($matches[1], ['[' => '&#91;']) . '[/tt]';
 			},
-			'~</tt>~i' => function () {
-				return '[/tt]';
+			'~<code\b[^>]+class="bbc_tt"[^>]*>((?>[^<]|<(?!/?code\b)|(?R))*)</code>~i' => function ($matches) {
+				return '[tt]' . strtr($matches[1], ['[' => '&#91;']) . '[/tt]';
 			},
 			'~<table(\s(.)*?)*?' . '>~i' => function () {
 				return '[table]';
@@ -2550,6 +2550,7 @@ class BBCodeParser extends Parser
 		if (\count($parts = preg_split(\sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// Start outside [nobbc] or [code] blocks.
 			$in_code = false;
+			$in_tt = false;
 			$in_nobbc = false;
 
 			// A buffer containing all opened inline elements.
@@ -2574,6 +2575,31 @@ class BBCodeParser extends Parser
 					continue;
 				}
 
+				// Special case: inside [tt] tags any code is left untouched.
+				if ($tag === 'tt') {
+					// We're inside a code span and closing it.
+					if ($in_tt && $is_closing_tag) {
+						$in_tt = false;
+
+						// Reopen BBCodes that were closed before the code block.
+						if (!empty($inline_elements)) {
+							$parts[$i + 4] .= '[' . implode('][', array_keys($inline_elements)) . ']';
+						}
+					}
+					// We're outside a coding and nobbc block and opening it.
+					elseif (!$in_code && !$in_tt && !$in_nobbc && $is_opening_tag) {
+						// If there are still inline elements left open, close them now.
+						if (!empty($inline_elements)) {
+							$parts[$i] .= '[/' . implode('][/', array_reverse($inline_elements)) . ']';
+						}
+
+						$in_tt = true;
+					}
+
+					// Nothing further to do.
+					continue;
+				}
+
 				// Special case: inside [code] blocks any code is left untouched.
 				if ($tag === 'code') {
 					// We're inside a code block and closing it.
@@ -2586,7 +2612,7 @@ class BBCodeParser extends Parser
 						}
 					}
 					// We're outside a coding and nobbc block and opening it.
-					elseif (!$in_code && !$in_nobbc && $is_opening_tag) {
+					elseif (!$in_code && !$in_tt && !$in_nobbc && $is_opening_tag) {
 						// If there are still inline elements left open, close them now.
 						if (!empty($inline_elements)) {
 							$parts[$i] .= '[/' . implode('][/', array_reverse($inline_elements)) . ']';
@@ -2611,7 +2637,7 @@ class BBCodeParser extends Parser
 						}
 					}
 					// We're outside a nobbc and coding block and opening it.
-					elseif (!$in_nobbc && !$in_code && $is_opening_tag) {
+					elseif (!$in_nobbc && !$in_code && !$in_tt && $is_opening_tag) {
 						// Can't have inline elements still opened.
 						if (!empty($inline_elements)) {
 							$parts[$i] .= '[/' . implode('][/', array_reverse($inline_elements)) . ']';
@@ -2624,7 +2650,7 @@ class BBCodeParser extends Parser
 				}
 
 				// So, we're inside one of the special blocks: ignore any tag.
-				if ($in_code || $in_nobbc) {
+				if ($in_code || $in_tt || $in_nobbc) {
 					continue;
 				}
 
@@ -2775,6 +2801,8 @@ class BBCodeParser extends Parser
 			// Close the code BBCodes.
 			if ($in_code) {
 				$parts[$i] .= '[/code]';
+			} elseif ($in_tt) {
+				$parts[$i] .= '[/tt]';
 			}
 			// The same for nobbc BBCodes.
 			elseif ($in_nobbc) {
