@@ -1197,7 +1197,7 @@ class BBCodeParser extends Parser
 
 		$string = self::legalise($string);
 
-		return $string;
+		return Utils::htmlTrimRight($string);
 	}
 
 	/**
