@@ -461,10 +461,10 @@ abstract class Parser
 		// Clean out any other funky stuff.
 		$message = Utils::sanitizeChars($message, 0);
 
-		// Clean up after nobbc ;).
+		// Clean up after nobbc and tt.
 		$message = preg_replace_callback(
-			'~\[nobbc[^\]]*\](.+?)\[/nobbc\]~is',
-			fn($matches) => '[nobbc]' . strtr($matches[1], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/nobbc]',
+			'~\[(nobbc|tt)[^\]]*\](.+?)\[/\1\]~is',
+			fn($matches) => '[' . $matches[1] . ']' . strtr($matches[2], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/' . $matches[1] . ']',
 			$message,
 		);
 
