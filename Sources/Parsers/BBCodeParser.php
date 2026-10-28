@@ -450,9 +450,6 @@ class BBCodeParser extends Parser
 	 */
 	public function unparse(string $string): string
 	{
-		// Replace newlines with spaces, as that's how browsers usually interpret them.
-		$string = preg_replace('~\s*[\r\n]+\s*~', ' ', $string);
-
 		// Though some of us love paragraphs, the parser will do better with breaks.
 		$string = preg_replace('~</p>\s*?<p~i', '</p><br><p', $string);
 		$string = preg_replace('~</p>\s*(?!<)~i', '</p><br>', $string);
