@@ -1468,7 +1468,7 @@ class BBCodeParser extends Parser
 
 		// Close any remaining BBCodes.
 		while ($bbc = array_pop($this->open_bbc)) {
-			$this->message .= $this->smiley_section_divider . $bbc->after . $this->smiley_section_divider;
+			$this->message .= $this->smiley_section_divider . $bbc->after . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider;
 		}
 
 		// Parse the smileys within the parts where it can be done safely.
@@ -1500,6 +1500,8 @@ class BBCodeParser extends Parser
 
 		// Cleanup whitespace.
 		$this->message = strtr($this->message, ['  ' => ' &nbsp;', "\r" => '', "\n" => '<br>', '<br> ' => '<br>&nbsp;', '&#13;' => "\n"]);
+
+		$this->message = trim($this->message, "\n");
 	}
 
 	/**
@@ -2158,9 +2160,9 @@ class BBCodeParser extends Parser
 
 			$this->open_bbc[] = $bbc;
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $bbc->before . $this->smiley_section_divider . substr($this->message, $this->pos1);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $bbc->before . $this->smiley_section_divider . substr($this->message, $this->pos1);
 
-			$this->pos += \strlen($bbc->before) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($bbc->before) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 5 : 0);
 		}
 		// Don't parse the content, just skip it.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_CONTENT) {
@@ -2180,9 +2182,9 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->content, ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $html . $this->smiley_section_divider . substr($this->message, $pos2 + 3 + $tag_strlen);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos2 + 3 + $tag_strlen);
 
-			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 			$this->last_pos = $this->pos + 1;
 		}
 		// Don't parse the content, just skip it.
@@ -2232,9 +2234,9 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->content, ['$1' => $data[0], '$2' => $data[1]]);
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $html . $this->smiley_section_divider . substr($this->message, $pos3 + 3 + $tag_strlen);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 		}
 		// A closed BBCode, with no content or value.
 		elseif ($bbc->type == BBCode::TYPE_CLOSED) {
@@ -2245,9 +2247,9 @@ class BBCodeParser extends Parser
 
 			$bbc->validate($bbc, $data, $this->disabled, $params);
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $bbc->content . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $bbc->content . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
 
-			$this->pos += \strlen($bbc->content) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($bbc->content) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 		}
 		// This one is sorta ugly... :/.  Unfortunately, it's needed for flash.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS_CONTENT) {
@@ -2275,9 +2277,9 @@ class BBCodeParser extends Parser
 				$html = strtr($html, ['$' . ($k + 1) => trim($d)]);
 			}
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $html . $this->smiley_section_divider . substr($this->message, $pos3 + 3 + $tag_strlen);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 		}
 		// This has parsed content, and a csv value which is unparsed.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS) {
@@ -2305,9 +2307,9 @@ class BBCodeParser extends Parser
 				$html = strtr($html, ['$' . ($k + 1) => trim($d)]);
 			}
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $html . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
 
-			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 5 : 0);
 		}
 		// A BBCode set to a value, parsed or not.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_EQUALS || $bbc->type == BBCode::TYPE_PARSED_EQUALS) {
@@ -2392,18 +2394,25 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->before, ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $html . $this->smiley_section_divider . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)));
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . $this->smiley_section_divider . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)));
 
-			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider));
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 5 : 0);
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($bbc->block_level) && substr($this->message, $this->pos + 1, 4) == '<br>') {
+		if (
+			!empty($bbc->block_level)
+			&& substr($this->message, $this->pos + 1, 4) == '<br>'
+		) {
 			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 5);
 		}
 
 		// Are we trimming outside this BBCode?
-		if (!empty($bbc->trim) && $bbc->trim != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
+		if (
+			!empty($bbc->trim)
+			&& $bbc->trim != 'outside'
+			&& preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches)
+		) {
 			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + \strlen($matches[0]));
 		}
 	}
