@@ -1088,11 +1088,14 @@ class BBCodeParser extends Parser
 			'~<br(?:\s[^<>]*?)?' . '>~i' => function () {
 				return "\n";
 			},
-			'~<hr[^<>]*>(\n)?~i' => function ($matches) {
-				return "[hr]\n" . $matches[0];
+			'~<hr[^<>]*>~i' => function () {
+				return '[hr]';
 			},
-			'~(\n)?\[hr\]~i' => function () {
+			'~(?<!\n)\[hr\]~i' => function () {
 				return "\n[hr]";
+			},
+			'~\[hr\](?!\n)~i' => function () {
+				return "[hr]\n";
 			},
 			'~^\n\[hr\]~i' => function () {
 				return '[hr]';
