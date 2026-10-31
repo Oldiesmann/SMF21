@@ -2356,17 +2356,34 @@ class BBCodeParser extends Parser
 			$bbc->validate($bbc, $data, $this->disabled, $params);
 
 			// For parsed content, we must recurse to avoid security problems.
-			if ($bbc->type != BBCode::TYPE_UNPARSED_EQUALS) {
-				$smileys = $this->smileys;
+			if ($bbc->type === BBCode::TYPE_PARSED_EQUALS) {
+				$message = $this->message;
+				$bbc_codes = $this->bbc_codes;
 				$parse_tags = $this->parse_tags;
+				$open_bbc = $this->open_bbc;
+				$inside = $this->inside;
+				$pos = $this->pos;
+				$last_pos = $this->last_pos;
+				$placeholders = $this->placeholders;
+				$placeholders_counter = $this->placeholders_counter;
+				$smileys = $this->smileys;
 
-				$this->smileys = empty($bbc->parsed_tags_allowed);
-				$this->parse_tags = !empty($bbc->parsed_tags_allowed) ? $bbc->parsed_tags_allowed : [];
+				$data = $this->parse(
+					message: $data,
+					smileys: empty($bbc->parsed_tags_allowed),
+					parse_tags: $bbc->parsed_tags_allowed ?? [],
+				);
 
-				$data = $this->parse($data);
-
-				$this->smileys = $smileys;
+				$this->message = $message;
+				$this->bbc_codes = $bbc_codes;
 				$this->parse_tags = $parse_tags;
+				$this->open_bbc = $open_bbc;
+				$this->inside = $inside;
+				$this->pos = $pos;
+				$this->last_pos = $last_pos;
+				$this->placeholders = $placeholders;
+				$this->placeholders_counter = $placeholders_counter;
+				$this->smileys = $smileys;
 			}
 
 			$bbc->after = strtr($bbc->after, ['$1' => $data]);
