@@ -517,7 +517,7 @@ class MarkdownParser extends Parser
 					'</?' .
 					// A subset of possible HTML element names to match.
 					// (Basically, block level elements plus some other stuff.)
-					'(?' . '>iframe|ul|a(?' . '>ddress|rticle|side)|b(?' . '>lockquote|ase(?' . '>font|)|ody)|c(?' . '>aption|enter|ol(?' . '>group|))|d(?' . '>etails|d|i(?' . '>alog|r|v)|l|t)|f(?' . '>rame(?' . '>set|)|i(?' . '>eldset|g(?' . '>caption|ure))|o(?' . '>oter|rm))|h(?' . '>ead(?' . '>er|)|tml|1|2|3|4|5|6|r)|l(?' . '>egend|i(?' . '>nk|))|m(?' . '>ain|enu(?' . '>item|))|n(?' . '>oframes|av)|o(?' . '>pt(?' . '>group|ion)|l)|p(?' . '>aram|)|s(?' . '>ection|ummary|ource)|t(?' . '>able|body|foot|itle|d|h(?' . '>ead|)|r(?' . '>ack|)))' .
+					'(?' . '>iframe|ul|a(?' . '>ddress|rticle|side)|b(?' . '>lockquote|ase(?' . '>font|)|ody)|c(?' . '>aption|enter|ol(?' . '>group|))|d(?' . '>etails|d|i(?' . '>alog|r|v)|l|t)|f(?' . '>rame(?' . '>set|)|i(?' . '>eldset|g(?' . '>caption|ure))|o(?' . '>oter|rm))|h(?' . '>ead(?' . '>er|)|tml|1|2|3|4|5|6|r)|l(?' . '>egend|i(?' . '>nk|))|m(?' . '>a(?' . '>in|rquee)|enu(?' . '>item|))|n(?' . '>oframes|av)|o(?' . '>pt(?' . '>group|ion)|l)|p(?' . '>aram|)|s(?' . '>ection|ummary|ource)|t(?' . '>able|body|foot|itle|d|h(?' . '>ead|)|r(?' . '>ack|)))' .
 					// Followed by whitespace, `>`, `/>`, or the end of the line.
 					'(?=\h|/?' . '>|$)' .
 				'~ui',
