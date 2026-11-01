@@ -990,7 +990,7 @@ class MarkdownParser extends Parser
 	/**
 	 * Parses the string to build a structured series of block elements.
 	 *
-	 * The result is stored as $this->structured.
+	 * The result is stored as $this->structure.
 	 *
 	 * @param string $string The string to parse.
 	 */

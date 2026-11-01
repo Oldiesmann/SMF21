@@ -292,7 +292,7 @@ abstract class Parser
 	 * @param int $input_types Bitmask of this class's INPUT_* constants.
 	 *    Only the indicated types of markup will be parsed in the input string.
 	 *    Default: self::INPUT_BBC | self::INPUT_MARKDOWN | self::INPUT_SMILEYS
-	 * @param int $output_type One of this class's INPUT_* constants.
+	 * @param int $output_type One of this class's OUTPUT_* constants.
 	 *    Default: self::OUTPUT_HTML
 	 * @param array $options Various parser options. See self::$default_options.
 	 * @return string The transformed string.
