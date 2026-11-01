@@ -1117,13 +1117,17 @@ class MarkdownParser extends Parser
 			}
 		}
 
-		// Finally, close the last open blocks.
+		// Close the last open blocks.
 		$this->findOpen();
 
 		foreach ($this->open as $o => $dummy) {
 			$this->getMethod($this->block_types[$this->open[$o]['type']]['close'] ?? 'closeBlock')($o);
 		}
 
+		// Avoid unnecessary breaks at the end when $this->hard_breaks is set to BR_LINES.
+		$this->last_block['properties']['blank_after'] = min(1, $this->last_block['properties']['blank_after'] ?? 0);
+
+		// Reset these.
 		$this->in_code = 0;
 		$this->info_string = '';
 		$this->in_html = 0;
