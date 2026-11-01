@@ -1731,14 +1731,7 @@ class BBCodeParser extends Parser
 				}
 
 				// The idea is, if we are LOOKING for a block level BBCode, we can close them on the way.
-				if (\strlen($look_for) > 0 && isset($this->bbc_codes[$look_for[0]])) {
-					foreach ($this->bbc_codes[$look_for[0]] as $temp) {
-						if ($temp->tag == $look_for) {
-							$block_level = !empty($temp->block_level);
-							break;
-						}
-					}
-				}
+				$block_level = $bbc->block_level;
 
 				if ($block_level !== true) {
 					$block_level = false;
