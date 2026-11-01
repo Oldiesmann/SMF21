@@ -885,6 +885,9 @@ class MarkdownParser extends Parser
 				// We do this because we use EN QUAD for special purposes.
 				'/\x{2000}/u' => fn($m) => "\u{2002}",
 
+				// Insert line breaks around the content of certain tags, if they already contain breaks inside.
+				'/(<(blockquote|li|h[1-6])\b[^>]*>)((?>[^<]|<(?!\/?\2\b)|(?R))*)(<\/?\2>)/ui' => fn($m) => $m[1] . (str_contains($m[3], "\n") ? "\n\n" . $m[3] . "\n\n" : $m[3]) . $m[4],
+
 				// Insert two line breaks after certain tags, if they are not followed by another tag.
 				'/<((?>div class="(?>inline-block|justifytext|centertext|bbc_float|righttext|lefttext)|blockquote|\/cite))\b[^>]*>(?!(?:\n\n|\s*(?:<|$)))/uim' => fn($m) => $m[0] . "\n\n",
 
